@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/1.App/">
+    <Project Path="API.Veterinaria/API.Veterinaria.csproj" Id="3bce8807-a14b-4b48-8e31-81ea9d60bcab" />
+  </Folder>
+  <Folder Name="/2.Domain/">
+    <Project Path="Veterinaria.Domain/Veterinaria.Domain.csproj" />
+  </Folder>
+  <Folder Name="/3.Infraestructure/">
+    <Project Path="Veterina.Core/Veterina.Core.csproj" Id="815e58a0-8e3a-42be-961b-b20560e5f80c" />
+    <Project Path="Veterinaria.Entity/Veterinaria.Entity.csproj" Id="91809cea-927e-4231-bc41-efa604d700dc" />
+  </Folder>
+  <Folder Name="/4.Common/">
+    <Project Path="Veterinaria.Common/Veterinaria.Common.csproj" />
+  </Folder>
+</Solution>
