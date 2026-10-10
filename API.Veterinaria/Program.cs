@@ -1,16 +1,27 @@
 using Microsoft.EntityFrameworkCore;
 using Veterina.Core.Data;
+using Veterina.Core.Repository;
+using Veterina.Core.Repository.Interface;
+using Veterina.Core.UnitOfWork;
+using Veterina.Core.UnitOfWork.Interface;
+using Veterinaria.Domain.Services;
+using Veterinaria.Domain.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 #region SQL SERVER
-builder.Services.AddDbContext<DataContext>(opt =>
+builder
+    .Services.AddDbContext<DataContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringSQLServer"));
 });
 #endregion
 
+// Infrastructure
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IRolServices, RolServices>();
 
 // Add services to the container.
 

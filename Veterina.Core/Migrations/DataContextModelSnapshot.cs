@@ -20,6 +20,179 @@ namespace Veterina.Core.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.PermissionEntity", b =>
+                {
+                    b.Property<int>("IdPermission")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPermission"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("IdPermission");
+
+                    b.ToTable("Permission", "Security");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.RolEntity", b =>
+                {
+                    b.Property<int>("IdRol")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRol"));
+
+                    b.Property<string>("Rol")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("IdRol");
+
+                    b.ToTable("Rol", "Security");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.RolPermissionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IdPermission")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdRol")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdPermission");
+
+                    b.HasIndex("IdRol");
+
+                    b.ToTable("RolPermission", "Security");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.RolUserEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IdRol")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdUser")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdRol");
+
+                    b.HasIndex("IdUser");
+
+                    b.ToTable("RolUser", "Security");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.UserEntity", b =>
+                {
+                    b.Property<int>("IdUser")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUser"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("IdUser");
+
+                    b.ToTable("User", "Security");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.RolPermissionEntity", b =>
+                {
+                    b.HasOne("Veterinaria.Entity.Models.Secure.PermissionEntity", "PermissionEntity")
+                        .WithMany("RolPermissionEntities")
+                        .HasForeignKey("IdPermission")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Veterinaria.Entity.Models.Secure.RolEntity", "RolEntity")
+                        .WithMany("RolPermissionEntities")
+                        .HasForeignKey("IdRol")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PermissionEntity");
+
+                    b.Navigation("RolEntity");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.RolUserEntity", b =>
+                {
+                    b.HasOne("Veterinaria.Entity.Models.Secure.RolEntity", "RolEntity")
+                        .WithMany("RolUserEntities")
+                        .HasForeignKey("IdRol")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Veterinaria.Entity.Models.Secure.UserEntity", "UserEntity")
+                        .WithMany("RolUserEntities")
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RolEntity");
+
+                    b.Navigation("UserEntity");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.PermissionEntity", b =>
+                {
+                    b.Navigation("RolPermissionEntities");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.RolEntity", b =>
+                {
+                    b.Navigation("RolPermissionEntities");
+
+                    b.Navigation("RolUserEntities");
+                });
+
+            modelBuilder.Entity("Veterinaria.Entity.Models.Secure.UserEntity", b =>
+                {
+                    b.Navigation("RolUserEntities");
+                });
 #pragma warning restore 612, 618
         }
     }

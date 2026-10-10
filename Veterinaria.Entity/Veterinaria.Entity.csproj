@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Verinaria\" />
-    <Folder Include="Models\Secure\" />
   </ItemGroup>
 
 </Project>

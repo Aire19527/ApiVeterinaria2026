@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Veterinaria.Entity.Models.Secure;
 
 namespace Veterina.Core.Data
 {
@@ -13,5 +9,11 @@ namespace Veterina.Core.Data
         {
 
         }
+
+        public DbSet<UserEntity>  UserEntities { get; set; }
+        public DbSet<RolEntity>  RolEntities { get; set; }
+        public DbSet<RolPermissionEntity> RolPermissionEntities { get; set; }
+        public DbSet<RolUserEntity> RolUserEntities { get; set; }
+        public DbSet<PermissionEntity> PermissionEntities { get; set; }
     }
 }
