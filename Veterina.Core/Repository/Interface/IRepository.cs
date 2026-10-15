@@ -17,6 +17,7 @@ namespace Veterina.Core.Repository.Interface
 
         /// Retorna la primera entidad encontrada bajo una condición especificada o null sino encontrara registros
         Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties);
+        Task<TEntity?> FirstOrDefaultAsNoTrackingAsync(Expression<Func<TEntity, bool>> where, params Expression<Func<TEntity, object>>[] includeProperties);
         /// Registra una entidad
         void Insert(TEntity entity);
 
