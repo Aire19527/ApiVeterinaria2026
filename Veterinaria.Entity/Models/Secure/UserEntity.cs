@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Veterinaria.Entity.Models.Verinaria;
 
 namespace Veterinaria.Entity.Models.Secure
 {
@@ -25,5 +26,6 @@ namespace Veterinaria.Entity.Models.Secure
         public string Password { get; set; } = null!;
 
         public virtual List<RolUserEntity> RolUserEntities { get; set; } = new List<RolUserEntity>();
+        public List<PetEntity> PetEntities { get; set; } = new List<PetEntity>();
     }
 }

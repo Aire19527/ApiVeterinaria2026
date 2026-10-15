@@ -10,8 +10,4 @@
     <ProjectReference Include="..\Veterinaria.Common\Veterinaria.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\Verinaria\" />
-  </ItemGroup>
-
 </Project>
