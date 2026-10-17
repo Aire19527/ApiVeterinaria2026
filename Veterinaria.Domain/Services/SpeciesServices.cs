@@ -1,4 +1,6 @@
 ﻿using Veterina.Core.UnitOfWork.Interface;
+using Veterinaria.Common.Exceptions;
+using Veterinaria.Common.Resources;
 using Veterinaria.Domain.Services.Interfaces;
 using Veterinaria.Entity.DTO.Species;
 using Veterinaria.Entity.Models.Verinaria;
@@ -27,16 +29,6 @@ namespace Veterinaria.Domain.Services
             }).ToList();
 
             return species;
-        }
-
-        private async Task<SpeciesEntity> GetEntityAsync(int specieId)
-        {
-            SpeciesEntity? entity= await _unitOfWork.SpeciesRepository.FirstOrDefaultAsync(x => x.Id == specieId);
-
-            if (entity == null)
-                throw new Exception("La especie a procesar no existe.");
-
-            return entity;
         }
 
         public async Task<bool> Add(string name)
@@ -68,6 +60,20 @@ namespace Veterinaria.Domain.Services
             return await _unitOfWork.SaveAsync() > 0;
         }
 
+        #endregion
+
+        #region Private
+        private async Task<SpeciesEntity> GetEntityAsync(int specieId)
+        {
+            SpeciesEntity? entity = await _unitOfWork.SpeciesRepository.FirstOrDefaultAsync(x => x.Id == specieId);
+            if (entity == null)
+            {
+                string message = string.Format(GeneralMessages.ItemNoFound, "Especie");
+                throw new BusinessException(message);
+            }
+
+            return entity;
+        } 
         #endregion
     }
 }

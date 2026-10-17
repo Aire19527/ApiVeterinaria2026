@@ -1,4 +1,6 @@
 ﻿using Veterina.Core.UnitOfWork.Interface;
+using Veterinaria.Common.Exceptions;
+using Veterinaria.Common.Resources;
 using Veterinaria.Domain.Services.Interfaces;
 using Veterinaria.Entity.DTO.Breeds;
 using Veterinaria.Entity.Models.Verinaria;
@@ -36,9 +38,11 @@ namespace Veterinaria.Domain.Services
         private async Task<BreedEntity> GetEntityAsync(int breedId)
         {
             BreedEntity? entity = await _unitOfWork.BreedRepository.FirstOrDefaultAsync(x => x.Id == breedId);
-
             if (entity == null)
-                throw new Exception("La raza a procesar no existe.");
+            {
+                string message = string.Format(GeneralMessages.ItemNoFound, "Raza");
+                throw new BusinessException(message);
+            }
 
             return entity;
         }
