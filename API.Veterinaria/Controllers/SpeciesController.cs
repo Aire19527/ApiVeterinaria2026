@@ -1,4 +1,5 @@
 ﻿using API.Veterinaria.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Veterinaria.Common.Resources;
 using Veterinaria.Domain.Services.Interfaces;
@@ -9,6 +10,7 @@ namespace API.Veterinaria.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     [TypeFilter(typeof(CustomExceptionHandler))]
     public class SpeciesController : ControllerBase
     {

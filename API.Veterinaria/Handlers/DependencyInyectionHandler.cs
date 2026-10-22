@@ -22,6 +22,8 @@ namespace API.Veterinaria.Handlers
             services.AddScoped<IRolServices, RolServices>();
             services.AddScoped<ISpeciesServices, SpeciesServices>();
             services.AddScoped<IBreedServices, BreedServices>();
+            services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IAuthServices, AuthServices>();
         }
     }
 }

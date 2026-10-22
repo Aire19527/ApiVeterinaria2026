@@ -25,6 +25,10 @@ namespace Veterinaria.Entity.Models.Secure
         [Required]
         public string Password { get; set; } = null!;
 
+
+        [NotMapped]
+        public string FullName { get { return $"{this.Name} {this.LastName}"; } }
+
         public virtual List<RolUserEntity> RolUserEntities { get; set; } = new List<RolUserEntity>();
         public List<PetEntity> PetEntities { get; set; } = new List<PetEntity>();
     }
