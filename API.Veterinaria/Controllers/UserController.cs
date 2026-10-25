@@ -1,12 +1,9 @@
 ﻿using API.Veterinaria.Handlers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Veterinaria.Common.Resources;
-using Veterinaria.Domain.Services;
 using Veterinaria.Domain.Services.Interfaces;
 using Veterinaria.Entity.DTO;
-using Veterinaria.Entity.DTO.Species;
 using Veterinaria.Entity.DTO.Users;
 
 namespace API.Veterinaria.Controllers
@@ -47,6 +44,34 @@ namespace API.Veterinaria.Controllers
                 IsSuccess = result,
                 Result = result,
                 Message = result ? GeneralMessages.ItemInserted : GeneralMessages.ItemNoInserted
+            };
+
+            return result ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpPut("Update")]
+        public async Task<IActionResult> Update([FromBody] UserUpdateDto user)
+        {
+            bool result = await _userServices.Update(user);
+            ResponseDto response = new ResponseDto()
+            {
+                IsSuccess = result,
+                Result = result,
+                Message = result ? GeneralMessages.ItemUpdated : GeneralMessages.ItemNoUpdated
+            };
+
+            return result ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(int userId)
+        {
+            bool result = await _userServices.Delete(userId);
+            ResponseDto response = new ResponseDto()
+            {
+                IsSuccess = result,
+                Result = result,
+                Message = result ? GeneralMessages.ItemDeleted : GeneralMessages.ItemNoDeleted
             };
 
             return result ? Ok(response) : BadRequest(response);

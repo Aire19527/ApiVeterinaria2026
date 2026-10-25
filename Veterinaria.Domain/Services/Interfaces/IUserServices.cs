@@ -8,5 +8,7 @@ namespace Veterinaria.Domain.Services.Interfaces
         Task<UserEntity?> GetUserByEmail(string email);
         Task<List<UserDto>> GetAll();
         Task<bool> Add(UserAddDto userAdd);
+        Task<bool> Update(UserUpdateDto user);
+        Task<bool> Delete(int userId);
     }
 }

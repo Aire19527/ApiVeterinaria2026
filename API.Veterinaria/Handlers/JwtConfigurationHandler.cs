@@ -8,15 +8,35 @@ namespace API.Veterinaria.Handlers
     {
         public static void ConfigureJwtAuthentication(IServiceCollection services, IConfigurationSection tokenAppSetting)
         {
+            string? issuer = tokenAppSetting.GetSection("Issuer").Value;
+            string? audience = tokenAppSetting.GetSection("Audience").Value;
+            string? key = tokenAppSetting.GetSection("Key").Value;
+
+            if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience) || string.IsNullOrWhiteSpace(key))
+                throw new InvalidOperationException("La configuración Tokens debe incluir Key, Issuer y Audience.");
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddCookie()
                .AddJwtBearer(cfg =>
                {
                    cfg.TokenValidationParameters = new TokenValidationParameters
                    {
-                       ValidIssuer = tokenAppSetting.GetSection("Issuer").Value,
-                       ValidAudience = tokenAppSetting.GetSection("Audience").Value,
-                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenAppSetting.GetSection("Key").Value))
+                       // Rechaza el token si no lo emitió esta API (debe coincidir con Tokens:Issuer).
+                       ValidateIssuer = true,
+                       // Rechaza el token si no va dirigido a esta API (debe coincidir con Tokens:Audience).
+                       ValidateAudience = true,
+                       // Rechaza el token cuando ya pasó la fecha exp.
+                       ValidateLifetime = true,
+                       // Comprueba que la firma se haya hecho con nuestra clave secreta.
+                       ValidateIssuerSigningKey = true,
+                       // Por defecto se suman 5 minutos de tolerancia. En cero, el token caduca justo al llegar exp.
+                       ClockSkew = TimeSpan.Zero,
+                       // Emisor esperado. Tiene que ser el mismo que se escribe al generar el token.
+                       ValidIssuer = issuer,
+                       // Audiencia esperada. Tiene que ser la misma que se escribe al generar el token.
+                       ValidAudience = audience,
+                       // Clave con la que se verifica la firma. Tiene que ser la misma Tokens:Key usada al firmar.
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                    };
                });
         }
