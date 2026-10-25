@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using NETCore.Encrypt;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Veterina.Core.UnitOfWork.Interface;
@@ -68,34 +68,35 @@ namespace Veterinaria.Domain.Services
                 throw new InvalidOperationException("La configuración Tokens:ExpireMinutes debe ser un número mayor que cero.");
 
             // La misma clave y el mismo algoritmo (HMAC-SHA256) deben usarse al validar la firma.
-            var _symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-            var _signingCredentials = new SigningCredentials(_symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
-            var _header = new JwtHeader(_signingCredentials);
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
             // Datos que viajan dentro del token. No poner la contraseña ni otros secretos.
-            var _Claims = new[] {
+            var claims = new[]
+            {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(TypeClaims.IdUser,userEntity.IdUser.ToString()),
-                new Claim(TypeClaims.FullName,userEntity.FullName),
-                new Claim(TypeClaims.Email,userEntity.Email),
+                new Claim(TypeClaims.IdUser, userEntity.IdUser.ToString()),
+                new Claim(TypeClaims.FullName, userEntity.FullName),
+                new Claim(TypeClaims.Email, userEntity.Email),
             };
-            var _payload = new JwtPayload(
-                    issuer: issuer,
-                    audience: audience,
-                    claims: _Claims,
-                    // nbf y exp van en UTC. JWT guarda un instante, no la hora local del servidor.
-                    notBefore: DateTime.UtcNow,
-                    expires: DateTime.UtcNow.AddMinutes(expireMinutes)
-                );
-            var _token = new JwtSecurityToken(
-                    _header,
-                    _payload
-                );
+
+            // nbf y exp van en UTC. JWT guarda un instante, no la hora local del servidor.
+            DateTime now = DateTime.UtcNow;
+            var descriptor = new SecurityTokenDescriptor
+            {
+                Issuer = issuer,
+                Audience = audience,
+                Subject = new ClaimsIdentity(claims),
+                NotBefore = now,
+                Expires = now.AddMinutes(expireMinutes),
+                SigningCredentials = signingCredentials
+            };
+
             TokenDto token = new TokenDto
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(_token),
-                // ValidTo es UTC. En el JSON sale con Z; no es la hora de Colombia.
-                DateExpiration= _token.ValidTo
+                Token = new JsonWebTokenHandler().CreateToken(descriptor),
+                // Expires es UTC. En el JSON sale con Z; no es la hora de Colombia.
+                DateExpiration = descriptor.Expires!.Value
             };
 
             return token;

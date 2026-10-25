@@ -1,6 +1,8 @@
 using API.Veterinaria.Handlers;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using Veterina.Core.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,52 +34,43 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<CustomExceptionHandler>();
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+// El documento OpenAPI sale en /openapi/v1.json. Scalar es la interfaz que lo muestra.
+builder.Services.AddOpenApi(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
     {
-        Version = "v1",
-        Title = "Veterinaria",
-        Description = "Api veterinaria",
-        Contact = new OpenApiContact
+        document.Info = new OpenApiInfo
         {
-            Name = "Veterinaria",
-            Email = "admin@veterinaria.com",
-            Url = new Uri("https://www.lab.com"),
-        }
-    });
+            Title = "Veterinaria",
+            Version = "v1",
+            Description = "Api veterinaria",
+            Contact = new OpenApiContact
+            {
+                Name = "Veterinaria",
+                Email = "admin@veterinaria.com",
+                Url = new Uri("https://www.lab.com"),
+            }
+        };
 
-    // Set the comments path for the Swagger JSON and UI.
-    //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    // c.IncludeXmlComments(xmlPath);
-
-    // To Enable authorization using Swagger (JWT)
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-    {
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Pega solo el token JWT. Swagger agrega el prefijo Bearer.",
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        // Esquema HTTP Bearer: en Scalar se pega solo el token y la interfaz agrega el prefijo.
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
         {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                new string[] {}
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Pega solo el token JWT. Scalar agrega el prefijo Bearer."
+        };
 
-        }
+        document.Security ??= [];
+        document.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
+
+        return Task.CompletedTask;
     });
 });
 
@@ -87,8 +80,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();

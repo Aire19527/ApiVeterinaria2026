@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Newtonsoft.Json;
 using Veterinaria.Common.Exceptions;
 using Veterinaria.Common.Resources;
 using Veterinaria.Entity.DTO;
@@ -31,7 +30,11 @@ namespace API.Veterinaria.Handlers
             else
             {
                 responseException.Status = StatusCodes.Status500InternalServerError;
-                response.Result = JsonConvert.SerializeObject(context.Exception);
+                response.Result = new
+                {
+                    Type = context.Exception.GetType().Name,
+                    Message = context.Exception.Message
+                };
                 response.Message = GeneralMessages.Error500;
                 context.ExceptionHandled = true;
 

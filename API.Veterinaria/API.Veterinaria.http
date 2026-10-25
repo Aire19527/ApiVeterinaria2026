@@ -1,6 +1,11 @@
 @API.Veterinaria_HostAddress = http://localhost:5212
 
-GET {{API.Veterinaria_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{API.Veterinaria_HostAddress}}/api/Auth/Login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": ""
+}
 
 ###
