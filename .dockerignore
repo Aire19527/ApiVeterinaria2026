@@ -1,0 +1,9 @@
+# No copiar el historial de git dentro de la imagen.
+**/.git
+# Carpetas de Visual Studio. No participan en el publish.
+**/.vs
+# Compilaciones locales. El Dockerfile vuelve a compilar en la etapa sdk.
+**/bin
+**/obj
+# Secretos locales. La cadena y la clave del token entran por variables del compose, no dentro de la imagen.
+.env

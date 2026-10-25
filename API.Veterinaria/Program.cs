@@ -1,4 +1,5 @@
 using API.Veterinaria.Handlers;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -10,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 #region SQL SERVER
+// Fuera de Docker usa appsettings.json. En el contenedor, ConnectionStrings__ConnectionStringSQLServer
+// del compose pisa esa cadena.
 builder
     .Services.AddDbContext<DataContext>(opt =>
 {
@@ -23,11 +26,26 @@ DependencyInyectionHandler.DependencyInyectionConfig(builder.Services);
 
 
 #region JWT
+// Tokens:Key, Issuer, Audience y ExpireMinutes. En Docker los pisan Tokens__Key, Tokens__Issuer,
+// Tokens__Audience y Tokens__ExpireMinutes, con el mismo valor en todas las réplicas.
 var tokenAppSetting = builder.Configuration.GetSection("Tokens");
 JwtConfigurationHandler.ConfigureJwtAuthentication(builder.Services, tokenAppSetting);
 #endregion
 
 // Add services to the container.
+
+// nginx reenvía la IP y el protocolo originales. Sin vaciar las listas, ASP.NET ignora esos
+// headers porque el proxy de Docker no está entre las redes que confía por defecto.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// El healthcheck del compose llama a /health. Revisa que el proceso responda y que la base abra.
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<DataContext>();
 
 builder.Services.AddControllers(options =>
 {
@@ -98,17 +116,68 @@ builder.Services.AddOpenApi(options =>
 
 var app = builder.Build();
 
+// Solo el servicio migrator trae estas variables. Aplica las migraciones y sale sin abrir el puerto.
+// Las réplicas no las tienen, así que no compiten por migrar.
+if (app.Configuration.GetValue<bool>("APPLY_MIGRATIONS"))
+{
+    using var scope = app.Services.CreateScope();
+    DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    db.Database.Migrate();
+    if (app.Configuration.GetValue<bool>("MIGRATE_ONLY"))
+        return;
+}
+
 // Configure the HTTP request pipeline.
+// En Docker el entorno es Development, así que Scalar queda en http://localhost:8080/scalar/v1.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
+// En el contenedor ASPNETCORE_URLS es http://+:8080. Sin "https" en la URL no hay redirección,
+// porque dentro de Docker solo hay HTTP y el redirect rompería las llamadas del proxy.
+string urls = app.Configuration["ASPNETCORE_URLS"] ?? "";
+if (app.Environment.IsDevelopment() && urls.Contains("https", StringComparison.OrdinalIgnoreCase))
+    app.UseHttpsRedirection();
+
+app.UseForwardedHeaders();
+
+// INSTANCE_PREFIX viene del compose. Junto con el número del hostname identifica la réplica.
+string instanceName = InstanceName(app.Configuration["INSTANCE_PREFIX"]);
+
+// Header en todas las respuestas, para ver qué réplica atendió sin llamar a /instance.
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Instance"] = instanceName;
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Sin autenticación: el healthcheck de Docker no envía token.
+app.MapHealthChecks("/health").AllowAnonymous();
+// GET /veterinaria/instance a través del proxy. Repetirlo alterna entre las réplicas.
+app.MapGet("/instance", () => Results.Ok(new { instance = instanceName }))
+    .AllowAnonymous();
 
 app.MapControllers();
 
 app.Run();
+
+// Docker nombra el hostname appveterinaria-1, appveterinaria-2, ...
+// Con INSTANCE_PREFIX=AppVeterinaria la respuesta queda AppVeterinaria-1.
+// Sin ese prefijo (Visual Studio) se devuelve el nombre del PC.
+static string InstanceName(string? prefix)
+{
+    string host = Environment.MachineName;
+    if (string.IsNullOrWhiteSpace(prefix))
+        return host;
+
+    int dash = host.LastIndexOf('-');
+    if (dash > 0 && int.TryParse(host.AsSpan(dash + 1), out _))
+        return prefix + host[dash..];
+
+    return host;
+}

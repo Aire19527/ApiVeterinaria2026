@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Veterinaria.Common.Resources;
@@ -18,7 +18,6 @@ namespace API.Veterinaria.Handlers
                 throw new InvalidOperationException("La configuración Tokens debe incluir Key, Issuer y Audience.");
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-               .AddCookie()
                .AddJwtBearer(cfg =>
                {
                    cfg.TokenValidationParameters = new TokenValidationParameters
