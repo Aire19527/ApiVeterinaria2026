@@ -79,6 +79,15 @@ namespace Veterinaria.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No tiene permisos para realizar esta acción..
+        /// </summary>
+        public static string Error403 {
+            get {
+                return ResourceManager.GetString("Error403", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ha ocurrido un error interno, por favor vuelva a intentarlo..
         /// </summary>
         public static string Error500 {

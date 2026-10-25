@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Veterinaria.Common.Resources;
+using Veterinaria.Entity.DTO;
 
 namespace API.Veterinaria.Handlers
 {
@@ -38,7 +40,31 @@ namespace API.Veterinaria.Handlers
                        // Clave con la que se verifica la firma. Tiene que ser la misma Tokens:Key usada al firmar.
                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                    };
+
+                   // El 401 y el 403 los emite este middleware antes de llegar al controlador,
+                   // así que CustomExceptionHandler no los ve. Aquí se les da el formato ResponseDto.
+                   cfg.Events = new JwtBearerEvents
+                   {
+                       // 401: no hay token, está mal firmado o ya venció.
+                       OnChallenge = async context =>
+                       {
+                           // Evita la respuesta vacía por defecto.
+                           context.HandleResponse();
+                           await WriteResponse(context.Response, StatusCodes.Status401Unauthorized, GeneralMessages.Error401);
+                       },
+                       // 403: el token es válido pero el usuario no tiene permiso.
+                       OnForbidden = context =>
+                           WriteResponse(context.Response, StatusCodes.Status403Forbidden, GeneralMessages.Error403)
+                   };
                });
+        }
+
+        private static Task WriteResponse(HttpResponse response, int statusCode, string message)
+        {
+            response.StatusCode = statusCode;
+            response.ContentType = "application/json";
+            ResponseDto body = new ResponseDto { IsSuccess = false, Message = message, Result = null };
+            return response.WriteAsJsonAsync(body);
         }
     }
 }

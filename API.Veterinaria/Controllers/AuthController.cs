@@ -1,5 +1,4 @@
-﻿using API.Veterinaria.Handlers;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Veterinaria.Common.Resources;
@@ -13,7 +12,6 @@ namespace API.Veterinaria.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [TypeFilter(typeof(CustomExceptionHandler))]
     public class AuthController : ControllerBase
     {
         #region Attributes

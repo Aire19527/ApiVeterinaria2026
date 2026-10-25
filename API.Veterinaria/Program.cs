@@ -26,7 +26,12 @@ JwtConfigurationHandler.ConfigureJwtAuthentication(builder.Services, tokenAppSet
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // Aplica a todos los controladores. Ya no hace falta [TypeFilter(typeof(CustomExceptionHandler))].
+    options.Filters.Add<CustomExceptionHandler>();
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -52,12 +57,11 @@ builder.Services.AddSwaggerGen(c =>
     // To Enable authorization using Swagger (JWT)
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+        Description = "Pega solo el token JWT. Swagger agrega el prefijo Bearer.",
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement

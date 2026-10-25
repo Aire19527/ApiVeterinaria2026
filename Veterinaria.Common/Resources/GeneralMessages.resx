@@ -123,6 +123,9 @@
   <data name="Error401" xml:space="preserve">
     <value>Usuario no autenticado correctamente</value>
   </data>
+  <data name="Error403" xml:space="preserve">
+    <value>No tiene permisos para realizar esta acción.</value>
+  </data>
   <data name="Error500" xml:space="preserve">
     <value>Ha ocurrido un error interno, por favor vuelva a intentarlo.</value>
   </data>
