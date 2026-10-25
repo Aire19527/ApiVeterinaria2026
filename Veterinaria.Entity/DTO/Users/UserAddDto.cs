@@ -4,19 +4,23 @@ namespace Veterinaria.Entity.DTO.Users
 {
     public class UserAddDto
     {
-        [MaxLength(50)]
-        [Required]
+        [Display(Name = "Nombre")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        [MaxLength(50, ErrorMessage = "El campo {0} no puede superar {1} caracteres.")]
         public string Name { get; set; } = null!;
 
-        [MaxLength(50)]
+        [Display(Name = "Apellido")]
+        [MaxLength(50, ErrorMessage = "El campo {0} no puede superar {1} caracteres.")]
         public string? LastName { get; set; }
 
-        [MaxLength(150)]
-        [Required]
+        [Display(Name = "Email")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        [MaxLength(150, ErrorMessage = "El campo {0} no puede superar {1} caracteres.")]
         public string Email { get; set; } = null!;
 
-        [MaxLength(1000)]
-        [Required]
+        [Display(Name = "Contraseña")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        [MaxLength(1000, ErrorMessage = "El campo {0} no puede superar {1} caracteres.")]
         public string Password { get; set; } = null!;
     }
 }

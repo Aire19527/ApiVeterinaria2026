@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Text;
 using Veterina.Core.UnitOfWork.Interface;
 using Veterinaria.Common.Exceptions;
-using Veterinaria.Common.Helpers;
 using Veterinaria.Domain.Services.Interfaces;
 using Veterinaria.Entity.DTO.Tokens;
 using Veterinaria.Entity.Models.Secure;

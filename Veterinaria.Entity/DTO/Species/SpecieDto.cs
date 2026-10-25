@@ -6,7 +6,9 @@ namespace Veterinaria.Entity.DTO.Species
     {
         public int Id { get; set; }
 
-        [MaxLength(50)]
+        [Display(Name = "Nombre")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        [MaxLength(50, ErrorMessage = "El campo {0} no puede superar {1} caracteres.")]
         public string Name { get; set; } = null!;
     }
 }

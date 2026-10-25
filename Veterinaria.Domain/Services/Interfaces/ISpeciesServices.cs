@@ -1,5 +1,4 @@
 ﻿using Veterinaria.Entity.DTO.Species;
-using Veterinaria.Entity.Models.Verinaria;
 
 namespace Veterinaria.Domain.Services.Interfaces
 {

@@ -18,14 +18,13 @@ namespace Veterinaria.Domain.Services
 
         #region Services
 
-
         public async Task<List<SpecieDto>> GetAll()
         {
             List<SpeciesEntity> entities = await _unitOfWork.SpeciesRepository.GetAllAsync();
             List<SpecieDto> species = entities.Select(x => new SpecieDto()
             {
-                Id= x.Id,
-                Name= x.Name,
+                Id = x.Id,
+                Name = x.Name,
             }).ToList();
 
             return species;
@@ -73,7 +72,7 @@ namespace Veterinaria.Domain.Services
             }
 
             return entity;
-        } 
+        }
         #endregion
     }
 }

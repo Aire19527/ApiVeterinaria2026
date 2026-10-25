@@ -1,9 +1,10 @@
 using API.Veterinaria.Handlers;
-using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Veterina.Core.Data;
+using Veterinaria.Entity.DTO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,26 @@ builder.Services.AddControllers(options =>
 {
     // Aplica a todos los controladores. Ya no hace falta [TypeFilter(typeof(CustomExceptionHandler))].
     options.Filters.Add<CustomExceptionHandler>();
+})
+.ConfigureApiBehaviorOptions(options =>
+{
+    // Los [Required] y [MaxLength] fallan antes de entrar a la acción.
+    // Se responden con ResponseDto en lugar del ProblemDetails por defecto.
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        Dictionary<string, string[]> errors = context.ModelState
+            .Where(entry => entry.Value?.Errors.Count > 0)
+            .ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value!.Errors.Select(error => error.ErrorMessage).ToArray());
+
+        return new BadRequestObjectResult(new ResponseDto
+        {
+            IsSuccess = false,
+            Message = string.Join(" ", errors.SelectMany(error => error.Value)),
+            Result = errors
+        });
+    };
 });
 
 // El documento OpenAPI sale en /openapi/v1.json. Scalar es la interfaz que lo muestra.

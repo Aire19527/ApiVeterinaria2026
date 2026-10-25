@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Veterinaria.Common.Resources;
-using Veterinaria.Domain.Services;
 using Veterinaria.Domain.Services.Interfaces;
 using Veterinaria.Entity.DTO;
 using Veterinaria.Entity.DTO.Tokens;
-using Veterinaria.Entity.DTO.Users;
 
 namespace API.Veterinaria.Controllers
 {
@@ -15,7 +11,7 @@ namespace API.Veterinaria.Controllers
     public class AuthController : ControllerBase
     {
         #region Attributes
-        private readonly IAuthServices _authServices; 
+        private readonly IAuthServices _authServices;
         #endregion
 
         #region Builder

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Veterinaria.Entity.Models.Secure
 {
@@ -19,7 +14,7 @@ namespace Veterinaria.Entity.Models.Secure
         public RolEntity RolEntity { get; set; } = null!;
 
         [ForeignKey("PermissionEntity")]
-        public int IdPermission{ get; set; }
+        public int IdPermission { get; set; }
         public PermissionEntity PermissionEntity { get; set; } = null!;
     }
 }
